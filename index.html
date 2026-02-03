@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Estimator & Revenue Share</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo-section">
+                <div class="logo-icon"><i class="fa-solid fa-chart-pie"></i></div>
+                <h1>Project Estimator</h1>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="btn-icon" title="Toggle Theme">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="export-btn" class="btn-secondary">
+                    <i class="fa-solid fa-download"></i> Export CSV
+                </button>
+                <button id="reset-btn" class="btn-danger">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Top Section: Project Configuration -->
+            <section class="config-section">
+                <div class="card project-card">
+                    <h2><i class="fa-solid fa-cube"></i> Project Details</h2>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="project-name">Project Name</label>
+                            <input type="text" id="project-name" placeholder="e.g. Website Redesign">
+                        </div>
+                        <div class="input-group">
+                            <label for="project-duration">Duration (Months)</label>
+                            <input type="number" id="project-duration" min="1" value="1" placeholder="Mon">
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    
+                    <h3>Revenue Model</h3>
+                    <div class="input-grid three-col">
+                        <div class="input-group">
+                            <label for="pricing-model">Pricing Model</label>
+                            <select id="pricing-model">
+                                <option value="fixed">Fixed Monthly</option>
+                                <option value="hourly">Hourly Rate</option>
+                                <option value="daily">Daily Rate</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Dynamic inputs based on model -->
+                        <div class="input-group dynamic-input" data-show="hourly">
+                            <label for="rate-hourly">Hourly Rate ($)</label>
+                            <input type="number" id="rate-hourly" min="0" placeholder="0.00">
+                        </div>
+                        <div class="input-group dynamic-input" data-show="hourly">
+                            <label for="hours-per-day">Hours / Day</label>
+                            <input type="number" id="hours-per-day" min="0" max="24" value="8">
+                        </div>
+
+                        <div class="input-group dynamic-input" data-show="daily">
+                            <label for="rate-daily">Daily Rate ($)</label>
+                            <input type="number" id="rate-daily" min="0" placeholder="0.00">
+                        </div>
+
+                        <div class="input-group dynamic-input" data-show="hourly daily">
+                            <label for="days-per-month">Days / Month</label>
+                            <input type="number" id="days-per-month" min="0" max="31" value="20">
+                        </div>
+
+                        <div class="input-group dynamic-input" data-show="fixed">
+                            <label for="rate-fixed">Monthly Value ($)</label>
+                            <input type="number" id="rate-fixed" min="0" placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="total-revenue-display">
+                        <span class="label">Total Monthly Revenue</span>
+                        <span class="value" id="display-monthly-revenue">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="card summary-card">
+                    <h2><i class="fa-solid fa-chart-line"></i> Summary</h2>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Revenue</span>
+                            <span class="stat-value" id="stat-total-revenue">$0.00</span>
+                            <span class="stat-sub">Over project duration</span>
+                        </div>
+                        <div class="stat-item cost">
+                            <span class="stat-label">Total Cost</span>
+                            <span class="stat-value" id="stat-total-cost">$0.00</span>
+                            <span class="stat-sub" id="stat-cost-percent">0% of revenue</span>
+                        </div>
+                        <div class="stat-item net">
+                            <span class="stat-label">Net Remaining</span>
+                            <span class="stat-value" id="stat-net-value">$0.00</span>
+                            <span class="stat-sub">Profit margin</span>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="cost-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>Cost</span>
+                            <span id="allocation-warning"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Middle Section: Team & Distribution -->
+            <section class="team-section">
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-users"></i> Team & Referrals</h2>
+                        <button id="add-member-btn" class="btn-primary">
+                            <i class="fa-solid fa-plus"></i> Add Member
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="team-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Type</th>
+                                    <th>Share Model</th>
+                                    <th>Value</th>
+                                    <th>Duration (Mos)</th>
+                                    <th>Monthly Payout</th>
+                                    <th>Total Payout</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="team-tbody">
+                                <!-- Rows generated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="empty-state" class="empty-state">
+                        <p>No team members added yet.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom Section: Monthly Breakdown -->
+            <section class="breakdown-section">
+                <div class="card full-width">
+                     <h2><i class="fa-solid fa-calendar-days"></i> Monthly Breakdown</h2>
+                     <div class="table-container">
+                         <table id="breakdown-table">
+                             <thead>
+                                 <tr>
+                                     <th>Month</th>
+                                     <th>Gross Revenue</th>
+                                     <th>Team Costs</th>
+                                     <th>Referral Fees</th>
+                                     <th>Net Income</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="breakdown-tbody">
+                                 <!-- Rows generated by JS -->
+                             </tbody>
+                         </table>
+                     </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Shared Datalists -->
+    <datalist id="role-list">
+        <option value="Frontend Developer">
+        <option value="Backend Developer">
+        <option value="Full Stack Developer">
+        <option value="Mobile Developer">
+        <option value="DevOps Engineer">
+        <option value="UI/UX Designer">
+        <option value="Product Manager">
+        <option value="Project Manager">
+        <option value="QA Engineer">
+        <option value="Software Architect">
+        <option value="Tech Lead">
+        <option value="Data Scientist">
+        <option value="Database Administrator">
+        <option value="Security Engineer">
+        <option value="Cloud Architect">
+        <option value="Referral">
+        <option value="Sales Support">
+        <option value="Advisor">
+        <option value="Custom Role">
+    </datalist>
+    
+    <!-- Excel Export Library (SheetJS with Styles) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
